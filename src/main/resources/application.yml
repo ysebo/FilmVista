@@ -1,0 +1,19 @@
+spring:
+  config:
+    import: optional:classpath:application-secret.yml
+
+  application:
+    name: FilmVista
+  jpa:
+    hibernate:
+      ddl-auto: update
+      properties:
+        hibernate:
+          show_sql: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+server:
+  port: 9089
