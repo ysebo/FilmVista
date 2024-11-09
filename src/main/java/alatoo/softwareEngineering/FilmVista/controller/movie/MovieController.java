@@ -31,4 +31,7 @@ public final class MovieController implements MovieControllerDocumentation {
     public Boolean favorite(HttpServletRequest request, Long id){
        return movieService.favorite(request.getHeader("Authorization"), id);
     }
+    public ResponseEntity<MovieDTO> rate(HttpServletRequest request, Long id, int rate){
+        return ResponseEntity.ok(movieService.rate(request.getHeader("Authorization"), id, rate));
+    }
 }

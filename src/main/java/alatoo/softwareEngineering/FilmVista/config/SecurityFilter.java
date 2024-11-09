@@ -18,7 +18,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 public class SecurityFilter {
      JwtFilter jwtFilter;
      AuthenticationProvider authenticationProvider;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -32,7 +31,6 @@ public class SecurityFilter {
                         .permitAll()
                         .disable())
                 .exceptionHandling(exception -> exception
-
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

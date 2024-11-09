@@ -10,4 +10,5 @@ public interface MovieService {
     MovieDTO getById(Long id);
     Boolean favorite(String token , Long id);
 
+    MovieDTO rate(String authorization, Long id, int rate);
 }

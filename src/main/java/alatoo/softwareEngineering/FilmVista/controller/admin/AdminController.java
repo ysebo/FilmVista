@@ -20,4 +20,7 @@ public final class AdminController implements AdminControllerDocumentation {
     public ResponseEntity<MovieDTO> add(HttpServletRequest httpServletRequest , @RequestBody MovieRequest request){
         return  new ResponseEntity<MovieDTO> (adminService.add(httpServletRequest.getHeader("Authorization") , request) , HttpStatus.OK);
     }
+    public void delete(HttpServletRequest httpServletRequest , Long id ) {
+        adminService.delete(httpServletRequest.getHeader("Authorization"), id);
+    }
 }

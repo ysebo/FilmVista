@@ -1,5 +1,4 @@
 package alatoo.softwareEngineering.FilmVista.service.implementation;
-
 import alatoo.softwareEngineering.FilmVista.exception.CustomException;
 import alatoo.softwareEngineering.FilmVista.mapper.MovieMapper;
 import alatoo.softwareEngineering.FilmVista.model.domain.Movie;
@@ -29,7 +28,17 @@ public class AdminServiceImpl implements AdminService {
         if(movieRepository.findByTitle(request.getTitle()).isPresent()){
             throw new CustomException("Movie with title: " + request.getTitle() + " - already exist!" , HttpStatus.BAD_REQUEST);
         }
-        Movie movie = new Movie();
         return movieMapper.toDto(movieRepository.save(movieMapper.toEntity(request)));
+    }
+
+    @Override
+    public void delete(String token, Long id) {
+        User user = authService.getUserFromToken(token);
+        if(user == null){
+            throw new CustomException("User not found", HttpStatus.NOT_FOUND);
+        }
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Movie with id: " + id + " - doesn't exist!" , HttpStatus.NOT_FOUND));
+        movieRepository.delete(movie);
     }
 }

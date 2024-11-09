@@ -6,7 +6,7 @@ import alatoo.softwareEngineering.FilmVista.model.domain.Movie;
 import alatoo.softwareEngineering.FilmVista.model.domain.User;
 import alatoo.softwareEngineering.FilmVista.model.dto.movie.MovieDTO;
 import alatoo.softwareEngineering.FilmVista.model.dto.movie.MovieDetailResponse;
-import alatoo.softwareEngineering.FilmVista.repository.MovieRepository;
+import alatoo.softwareEngineering.FilmVista.repository.*;
 import alatoo.softwareEngineering.FilmVista.service.AuthService;
 import alatoo.softwareEngineering.FilmVista.service.MovieService;
 import lombok.AllArgsConstructor;
@@ -23,6 +23,8 @@ public class MovieServiceImpl implements MovieService {
     private final MovieMapper movieMapper;
     private final MovieRepository movieRepository;
     private final AuthService authService;
+    private final UserRepository userRepository;
+
     @Override
     public Set<MovieDTO> getAll() {
         return movieRepository.findAll().stream()
@@ -45,11 +47,29 @@ public class MovieServiceImpl implements MovieService {
         Optional<Movie> movie = movieRepository.findById(id);
         if(movie.isEmpty()){
             throw new CustomException("Movie with id: " + id + " - doesn't exist!" , HttpStatus.NOT_FOUND);
+        }if(user.getFavorites().contains(movie.get())){
+            user.getFavorites().remove(movie.get());
+        }else{
+            user.getFavorites().add(movie.get());
         }
-        if(user.getMovies().contains(movie.get())) {
-            user.getMovies().remove(movie.get());
+        userRepository.save(user);
+        return user.getFavorites().contains(movie.get());
+    }
+
+    @Override
+    public MovieDTO rate(String token, Long id, int rate) {
+        User user = authService.getUserFromToken(token);
+        Optional<Movie> movie = movieRepository.findById(id);
+        if(movie.isEmpty()){
+            throw new CustomException("Movie with id: " + id + " - doesn't exist!" , HttpStatus.NOT_FOUND);
         }
-        //TO DO there
+        if (user == null) {
+            throw new CustomException("User not found", HttpStatus.NOT_FOUND);
+        }
+        if (rate < 1 || rate > 10) {
+            throw new CustomException("Rate must be between 1 and 10", HttpStatus.BAD_REQUEST);
+        }
+
         return null;
     }
 

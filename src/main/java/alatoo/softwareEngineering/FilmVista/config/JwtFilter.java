@@ -76,9 +76,7 @@ public class JwtFilter extends OncePerRequestFilter {
             } } catch (Exception e) {
                 log.error("Error while setting authentication: {}", e.getMessage());
             }
-
         }
-
         filterChain.doFilter(request, response);
     }
 }

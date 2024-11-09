@@ -8,9 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/admin")
 @Tag(name = "Admin", description = "Admin operations")
@@ -23,5 +21,12 @@ public sealed interface AdminControllerDocumentation permits AdminController  {
             @ApiResponse(responseCode = "403" , description = "No permission to add movie")
     })
     ResponseEntity<MovieDTO> add(HttpServletRequest httpServletRequest , @RequestBody MovieRequest request);
-
+    @DeleteMapping("/movie/delete/{id}")
+    @Operation(summary = "Delete movie")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Movie deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "403" , description = "No permission to delete movie")
+    })
+    void delete(HttpServletRequest httpServletRequest, @PathVariable Long id);
 }
