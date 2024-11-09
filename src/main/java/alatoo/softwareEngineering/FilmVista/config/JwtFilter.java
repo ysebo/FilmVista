@@ -2,7 +2,6 @@ package alatoo.softwareEngineering.FilmVista.config;
 
 
 import alatoo.softwareEngineering.FilmVista.service.JwtService;
-import alatoo.softwareEngineering.FilmVista.service.implementation.JwtServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -42,27 +41,42 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
+            log.debug("Authorization Header: {}", authHeader);
+            log.debug("Extracted JWT: {}", jwt);
             try {
                 userEmail = jwtService.getUserEmailFromToken(jwt);
-            } catch (ExpiredJwtException e) {
+                log.debug("Extracted email from JWT: {}", userEmail);
+            }  catch (ExpiredJwtException e) {
+                log.error("JWT Token expired: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                log.info("JWT token expired: {}", e.getMessage());
+                response.getWriter().write("Token expired");
+                return;
             } catch (Exception e) {
                 log.info("JWT token could not be parsed: {}", e.getMessage());
             }
         }
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-            );
-            authToken.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request)
-            );
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+                if (userDetails == null) {
+                    log.error("User not found for email: {}", userEmail);
+                }else{
+
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } } catch (Exception e) {
+                log.error("Error while setting authentication: {}", e.getMessage());
+            }
+
         }
 
         filterChain.doFilter(request, response);

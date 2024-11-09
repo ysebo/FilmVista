@@ -28,7 +28,6 @@ public class User implements UserDetails {
 
     @ManyToMany
     private List<Movie> movies;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority( role.name() ));

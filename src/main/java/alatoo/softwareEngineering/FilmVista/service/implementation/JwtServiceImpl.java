@@ -27,6 +27,7 @@ public class JwtServiceImpl implements JwtService {
         Map<String, Object> claims = new HashMap<>();
 
         String role = userDetails.getAuthorities().toString();
+        role = role.replace("[", "").replace("]", "");
         claims.put("role", role);
 
         Date issuedDate = new Date();

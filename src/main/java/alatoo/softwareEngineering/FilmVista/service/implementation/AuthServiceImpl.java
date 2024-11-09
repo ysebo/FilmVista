@@ -12,9 +12,9 @@ import alatoo.softwareEngineering.FilmVista.repository.UserRepository;
 import alatoo.softwareEngineering.FilmVista.service.AuthService;
 import alatoo.softwareEngineering.FilmVista.service.JwtService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,14 +22,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static java.lang.String.format;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -39,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserDTO register(AuthRequest request) {
-        if(userRepository.findByUsername(request.username()).isPresent()){
+        if(userRepository.findByEmail(request.email()).isPresent()){
             throw new CustomException("User with this username already exists!", HttpStatus.FOUND);
         }
         User user = mapper.toEntity(request);
@@ -55,12 +54,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new CustomException("User does not exists", HttpStatus.NOT_FOUND));
         try{
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.email(),
+                            request.username(),
                             request.password()
                     )
             );
@@ -71,23 +70,34 @@ public class AuthServiceImpl implements AuthService {
         return mapper.toLoginDtoToken(user, token);
     }
 
+
     @Override
     public User getUserFromToken(String token) {
-        String[] chunks = token.substring(7).split("\\.");
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-        if (chunks.length != 3)
-            throw new BadCredentialsException("Wrong token!");
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new BadCredentialsException("Token is missing or invalid");
+        }
+        String jwtToken = token.substring(7);
+        String[] chunks = jwtToken.split("\\.");
 
+        if (chunks.length != 3) {
+            throw new BadCredentialsException("Wrong token format!");
+        }
+        Base64.Decoder decoder = Base64.getUrlDecoder();
         JSONParser jsonParser = new JSONParser();
         JSONObject object;
         try {
             byte[] decodedBytes = decoder.decode(chunks[1]);
             String jsonString = new String(decodedBytes, StandardCharsets.UTF_8);
             object = (JSONObject) jsonParser.parse(jsonString);
-        } catch (ParseException e) {
-            throw new BadCredentialsException("Wrong token!!");
+            String username = String.valueOf(object.get("sub"));
+            log.info("Decoded sub (username) from JWT: {}", username);
+
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new BadCredentialsException("User not found with this username: " + username));
+            return user;
+        } catch (Exception e) {
+            log.error("Error while decoding token: {}", e.getMessage());
+            throw new BadCredentialsException("Error while parsing token", e);
         }
-        return userRepository.findByEmail(String.valueOf(object.get("sub"))).orElseThrow(() ->
-                new BadCredentialsException("Wrong token!!!"));
     }
 }
