@@ -3,6 +3,7 @@ package alatoo.softwareEngineering.FilmVista.service.implementation;
 import alatoo.softwareEngineering.FilmVista.exception.CustomException;
 import alatoo.softwareEngineering.FilmVista.mapper.MovieMapper;
 import alatoo.softwareEngineering.FilmVista.model.domain.Movie;
+import alatoo.softwareEngineering.FilmVista.model.domain.Rating;
 import alatoo.softwareEngineering.FilmVista.model.domain.User;
 import alatoo.softwareEngineering.FilmVista.model.dto.movie.MovieDTO;
 import alatoo.softwareEngineering.FilmVista.model.dto.movie.MovieDetailResponse;
@@ -24,6 +25,7 @@ public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final MovieRatingRepository movieRatingRepository;
 
     @Override
     public Set<MovieDTO> getAll() {
@@ -69,9 +71,21 @@ public class MovieServiceImpl implements MovieService {
         if (rate < 1 || rate > 10) {
             throw new CustomException("Rate must be between 1 and 10", HttpStatus.BAD_REQUEST);
         }
-
-        return null;
+        Optional<Rating> existingRating = movieRatingRepository.findByUserAndMovie(user, movie.get());
+        if(existingRating.isPresent()){
+            Rating rating = existingRating.get();
+            rating.setRating(rate);
+            movieRatingRepository.save(rating);
+        }else{
+            Rating rating = new Rating();
+            rating.setRating(rate);
+            rating.setUser(user);
+            rating.setMovie(movie.get());
+            movieRatingRepository.save(rating);
+        }
+        return movieMapper.toDto(movie.get());
     }
+
 
 
 }
