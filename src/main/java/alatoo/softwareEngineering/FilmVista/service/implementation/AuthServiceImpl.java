@@ -39,7 +39,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserDTO register(AuthRequest request) {
         if(userRepository.findByEmail(request.email()).isPresent()){
-            throw new CustomException("User with this username already exists!", HttpStatus.FOUND);
+            throw new CustomException("User with this email already exists!", HttpStatus.BAD_REQUEST);
+        }
+        if(userRepository.findByUsername(request.username()).isPresent()){
+            throw new CustomException("User with this username already exists!", HttpStatus.BAD_REQUEST);
         }
         User user = mapper.toEntity(request);
         user.setRole(Role.USER);

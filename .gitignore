@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### secret ###
-application-secret.yml
+src/main/resources/application-secret.properties
 
 ### secret ###
-src/main/resources/application-secret.yml
+src/main/resources/application-secret.properties

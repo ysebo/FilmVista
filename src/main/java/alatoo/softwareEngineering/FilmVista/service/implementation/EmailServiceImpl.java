@@ -7,6 +7,7 @@ import alatoo.softwareEngineering.FilmVista.model.dto.email.VerifyRequest;
 import alatoo.softwareEngineering.FilmVista.repository.UserRepository;
 import alatoo.softwareEngineering.FilmVista.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
@@ -24,6 +25,7 @@ public class EmailServiceImpl implements EmailService {
     private JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
+
 
     @Override
     public void verify(VerifyRequest request) {
@@ -57,7 +59,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void recovery(String code, RecoveryRequest request) {
-        Optional<User> user = userRepository.findByUuid(code);
+        Optional<User> user = userRepository.findByCode(code);
         if (user.isEmpty()) {
             throw new CustomException("User not found", HttpStatus.NOT_FOUND);
         }
