@@ -41,7 +41,7 @@ The project consists of the following components:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-repository/movie-review-platform.git
+   git clone https://github.com/ysebo/FilmVista.git
    cd movie-review-platform
     ```
 2.
