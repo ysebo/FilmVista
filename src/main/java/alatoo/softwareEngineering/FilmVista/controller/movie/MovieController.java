@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,5 +34,10 @@ public final class MovieController implements MovieControllerDocumentation {
     }
     public ResponseEntity<MovieDTO> rate(HttpServletRequest request, Long id, int rate){
         return ResponseEntity.ok(movieService.rate(request.getHeader("Authorization"), id, rate));
+    }
+
+    @Override
+    public ResponseEntity<List<MovieDTO>> findByGenre(String genre) {
+        return ResponseEntity.ok(movieService.findByGenre(genre));
     }
 }

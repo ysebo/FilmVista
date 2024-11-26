@@ -7,6 +7,7 @@ import alatoo.softwareEngineering.FilmVista.model.domain.Rating;
 import alatoo.softwareEngineering.FilmVista.model.domain.User;
 import alatoo.softwareEngineering.FilmVista.model.dto.movie.MovieDTO;
 import alatoo.softwareEngineering.FilmVista.model.dto.movie.MovieDetailResponse;
+import alatoo.softwareEngineering.FilmVista.model.enums.Genre;
 import alatoo.softwareEngineering.FilmVista.repository.*;
 import alatoo.softwareEngineering.FilmVista.service.AuthService;
 import alatoo.softwareEngineering.FilmVista.service.MovieService;
@@ -14,6 +15,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,6 +89,18 @@ public class MovieServiceImpl implements MovieService {
         return movieMapper.toDto(movie.get());
     }
 
+    @Override
+    public List<MovieDTO> findByGenre(String genre) {
+        try {
+            Genre genreEnum = Genre.valueOf(genre.toUpperCase());
+            return movieRepository.findByGenre(genreEnum).stream()
+                    .map(movieMapper::toDto)
+                    .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            throw new CustomException("Genre not found", HttpStatus.NOT_FOUND);
+        }
+
+    }
 
 
 }

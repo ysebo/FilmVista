@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RequestMapping("/api/v1/movie")
@@ -45,8 +46,13 @@ public sealed interface MovieControllerDocumentation permits MovieController {
             @ApiResponse(responseCode = "404", description = "Movie not found")
     })
     ResponseEntity<MovieDTO> rate(HttpServletRequest httpServletRequest, @Parameter(description = "Unique identifier of movie" , required = true) @PathVariable Long id, @Parameter(description = "Rate of movie" , required = true) @RequestParam int rate);
-
-
+    @GetMapping("/genre/{genre}")
+    @Operation(summary = "Get movies by genre")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Movies fetched successfully"),
+            @ApiResponse(responseCode = "404", description = "Movies not found")
+    })
+    ResponseEntity<List<MovieDTO>> findByGenre(@Parameter(description = "Genre of movie") @RequestParam String genre);
 
 
 }
