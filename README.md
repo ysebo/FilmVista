@@ -29,6 +29,7 @@ The project consists of the following components:
 - **Database (PostgreSQL)**: Stores movie data, reviews, ratings, and user information.
 - **Security (Spring Security)**: Ensures the security of the application, including user authentication and authorization.
 
+
 ## Installation and Setup
 
 ### Requirements
@@ -53,5 +54,4 @@ The project consists of the following components:
 3. There should be application-secret.properties file where you can store your TMDb API key , all needed keys.
    ```
     tmdb.api.key=your_api_key
-   
     ```
