@@ -53,4 +53,5 @@ The project consists of the following components:
 3. There should be application-secret.properties file where you can store your TMDb API key , all needed keys.
    ```
     tmdb.api.key=your_api_key
+   
     ```
